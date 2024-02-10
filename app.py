@@ -1,6 +1,7 @@
 from flask import Flask, request
 import sqlglot
 from sqlglot.optimizer import optimize
+import db_util
 
 app = Flask(__name__)
 
@@ -12,6 +13,14 @@ def validate_query():
     try:
         sqlglot.transpile(query, read='oracle', pretty='true')
         print(optimize(query))
+        conn = db_util.get_connection()
+        cursor = conn.cursor()
+        cursor.execute('EXPLAIN PLAN FOR ' + query)
+        cursor.execute('SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY)')
+        for row in cursor:
+            print(row)
+        cursor.close()
+        conn.close()
         return {'status': 'success', 'message': 'Query is valid'}
     except Exception as e:
         return {'status': 'error', 'message': str(e)}
