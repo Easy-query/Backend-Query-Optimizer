@@ -2,8 +2,8 @@ import sqlalchemy
 from sqlalchemy.orm import sessionmaker
 
 def get_connection():
-    username = 'bakr'
-    password = 'bakr'
+    username = 'aya'
+    password = 'aya'
     hostname = '34.31.91.76'
     port = '3306'
     database = 'optimisation_db'
