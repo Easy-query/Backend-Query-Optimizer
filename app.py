@@ -7,7 +7,7 @@ from model import search
 
 app = Flask(__name__)
 
-CORS(app)
+CORS('app', origins='http://localhost:4200')
 
 
 @app.route('/ValidateSQL', methods=['GET'])
