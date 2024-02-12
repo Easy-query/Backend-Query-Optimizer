@@ -1,39 +1,33 @@
-from flask import Flask, request, jsonify
-import sqlglot
-from sqlglot.optimizer import optimize
-import db_util
+from flask import Flask, request
+from flask_cors import CORS
 from sqlalchemy import text
-import pandas as pd
 
-from model import clean_query, search
+import db_util
+from model import search
 
 app = Flask(__name__)
 
+CORS(app)
 
-@app.route('/ValidateSQL', methods=['GET'])
-def validate_query():
-    get_body = request.get_json()
-    query = get_body['query']
+
+@app.route('/optimize', methods=['POST'])
+def get_optimized_query():
     try:
+        query = request.json['query']
+        execution_plan = None
+        optimized_execution_plan = None
         conn = db_util.get_connection()
         explanation = conn.execute(text('EXPLAIN FORMAT=TREE ' + query))
         for row in explanation:
-            print(row)
+            execution_plan = row[0]
         conn.close()
-        return {'status': 'success', 'message': 'Query is valid'}
-    except Exception as e:
-        return {'status': 'error', 'message': str(e)}
-
-
-@app.route('/optimize', methods=['GET'])
-def get_optimized_query():
-    get_body = request.get_json()
-    query = get_body['query']
-    try:
         result_df = search(query)
-        # print(result_df)
         optimized_queries = result_df["optimized_query"].tolist()
-        return {'status': 'success', 'queries': optimized_queries}
+        explanation = conn.execute(text('EXPLAIN FORMAT=TREE ' + optimized_queries[0]))
+        for row in explanation:
+            optimized_execution_plan = row[0]
+        return {'status': 'success', 'queries': optimized_queries, 'execution_plan_for_original': execution_plan,
+                'execution_plan_for_optimized': optimized_execution_plan}
 
     except Exception as e:
         return {'status': 'error', 'message': str(e)}
