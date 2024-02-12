@@ -15,15 +15,15 @@ def get_optimized_query():
     get_body = request.get_json()
     query = get_body['query']
     try:
+        execution_plan = None
         conn = db_util.get_connection()
         explanation = conn.execute(text('EXPLAIN FORMAT=TREE ' + query))
         for row in explanation:
-            print(row)
+            execution_plan = row[0]
         conn.close()
         result_df = search(query)
-        # print(result_df)
         optimized_queries = result_df["optimized_query"].tolist()
-        return {'status': 'success', 'queries': optimized_queries}
+        return {'status': 'success', 'queries': optimized_queries, 'execution_plan': execution_plan}
 
     except Exception as e:
         return {'status': 'error', 'message': str(e)}
