@@ -1,13 +1,13 @@
-from flask import Flask, request, jsonify
-import sqlglot
-from sqlglot.optimizer import optimize
-import db_util
+from flask import Flask, request
+from flask_cors import CORS
 from sqlalchemy import text
-import pandas as pd
 
-from model import clean_query, search
+import db_util
+from model import search
 
 app = Flask(__name__)
+
+CORS(app)
 
 
 @app.route('/ValidateSQL', methods=['GET'])

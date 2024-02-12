@@ -4,7 +4,7 @@ import re
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-queries_df = pd.read_csv("/Users/aya/Desktop/ML/queries.csv")
+queries_df = pd.read_csv("./queries.csv")
 
 
 # Define function to preprocess SQL queries
@@ -32,13 +32,13 @@ def search(query):
     queries_df["clean_query"] = queries_df["unoptimized_query"].apply(clean_query)
 
     # instantiating the class
-    vectorizer = TfidfVectorizer(ngram_range=(1, 2))  # looking at groups of 1 and 2 words
+    vectorized = TfidfVectorizer(ngram_range=(1, 2))  # looking at groups of 1 and 2 words
 
     # creating a matrix of vector for each query
-    tfidf = vectorizer.fit_transform(queries_df["clean_query"])
+    tfidf = vectorized.fit_transform(queries_df["clean_query"])
 
     query = clean_query(query)
-    query_vec = vectorizer.transform([query])
+    query_vec = vectorized.transform([query])
     similarity = cosine_similarity(query_vec, tfidf).flatten()
     indices = np.argpartition(similarity, -3)[-3:]
     results = queries_df.iloc[indices][::-1]
