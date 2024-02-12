@@ -10,7 +10,7 @@ app = Flask(__name__)
 CORS(app)
 
 
-@app.route('/optimize', methods=['GET'])
+@app.route('/optimize', methods=['POST'])
 def get_optimized_query():
     get_body = request.get_json()
     query = get_body['query']
